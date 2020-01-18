@@ -153,7 +153,7 @@ void joiner(const std::string& prefix, unsigned long n, bool parallel, bool prea
     std::cout << "PARALLEL: file=" << out_file_name << ", file_size=" << total_size << std::endl;
 
     // preallocate the output file
-    auto fd = open(out_file_name.c_str(), O_CREAT | O_WRONLY | O_CLOEXEC);
+    auto fd = open(out_file_name.c_str(), O_CREAT | O_WRONLY | O_CLOEXEC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
     fallocate(fd, 0, 0, total_size);
 
     std::vector<std::thread> wg;
