@@ -8,4 +8,3 @@ clean:
 	rm -rf *.o
 
 all: joiner
-

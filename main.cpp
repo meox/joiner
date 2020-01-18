@@ -158,7 +158,7 @@ void joiner(const std::string& prefix, unsigned long n, bool parallel, bool prea
 
   if (parallel)
   {
-    std::cout << "PARALLEL file=" << out_file_name << ", file_size=" << total_size << std::endl;
+    std::cout << "PARALLEL: file=" << out_file_name << ", file_size=" << total_size << std::endl;
 
     // preallocate the output file
     auto fd = open(out_file_name.c_str(), O_WRONLY | O_CLOEXEC);
@@ -195,6 +195,8 @@ void joiner(const std::string& prefix, unsigned long n, bool parallel, bool prea
               exit(1);
             }
           }
+
+          // close (origin and dest)
           f.close();
           close(fd);
         }
@@ -209,7 +211,7 @@ void joiner(const std::string& prefix, unsigned long n, bool parallel, bool prea
   }
   else
   {
-    std::cout << "SERIAL" << ", file_size=" << out_file_name << ", total_size=" << total_size << std::endl;
+    std::cout << "SERIAL: file_size=" << out_file_name << ", total_size=" << total_size << std::endl;
 
     auto * fout = fopen(out_file_name.c_str(), "wb");
     auto fd = fileno(fout);

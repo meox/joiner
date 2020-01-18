@@ -14,7 +14,8 @@ time ./joiner --generate 300 --prefix /stank/test_dat/foo --size 104857600
 time ./joiner --join 300 --prefix /stank/test_dat/foo --out /tank/foo_all_ser.dat --preallocate
 
 SERIAL, file_size=/tank/foo_all_ser.dat, total_size=31457280000
-./joiner --join 300 --prefix /stank/test_dat/foo --out /tank/foo_all_ser.dat   0.36s user 15.35s system 12% cpu 2:02.46 total
+
+>>> 0.36s user 15.35s system 12% cpu 2:02.46 total
 ```
 
 ## Parallel Join
@@ -24,8 +25,11 @@ time ./joiner --join 300 --prefix /stank/test_dat/foo --out /tank/foo_all_par.da
 
 PARALLEL file=/tank/foo_all_par.dat, file_size=31457280000
 spawned 32 threads
-
 ```
+
+With 4 threads: 
+With 8 threads: 0.20s user 13.13s system 9% cpu 2:26.23 total
+With 32 threads: 0.30s user 13.62s system 3% cpu 6:54.18 total
 
 ## Verify
 
