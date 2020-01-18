@@ -29,7 +29,7 @@ spawned 32 threads
 
 ### Results
 
-- With 4 threads: 0.19s user 13.25s system 8% cpu 2:33.96 total
+- With 4 threads: 0.17s user 13.72s system 11% cpu 2:04.23 total
 - With 8 threads: 0.20s user 13.13s system 9% cpu 2:26.23 total
 - With 32 threads: 0.30s user 13.62s system 3% cpu 6:54.18 total
 

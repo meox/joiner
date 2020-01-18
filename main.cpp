@@ -142,19 +142,11 @@ void generate(const std::string& prefix, unsigned long n, unsigned long size)
 
 void joiner(const std::string& prefix, unsigned long n, bool parallel, bool preallocate, size_t max_threads, const std::string& out_file_name)
 {
-  unsigned long total_size{};
+  std::ifstream part0(prefix + "_" + std::to_string(0), std::ios::binary | std::ios::ate);
+  size_t part_size = part0.tellg();
+  part0.close();
 
-  size_t part_size{};
-  std::vector<std::ifstream> ins;
-  for (unsigned long i = 0; i < n; i++)
-  {
-    const std::string infname = prefix + "_" + std::to_string(i);
-    ins.push_back(std::ifstream(infname, std::ios::binary | std::ios::ate));
-    auto &f = ins[ins.size() - 1];
-    part_size = f.tellg();
-    total_size += part_size;
-    f.seekg(0);
-  }
+  const auto total_size = part_size * n;
 
   if (parallel)
   {
@@ -163,23 +155,19 @@ void joiner(const std::string& prefix, unsigned long n, bool parallel, bool prea
     // preallocate the output file
     auto fd = open(out_file_name.c_str(), O_WRONLY | O_CLOEXEC);
     fallocate(fd, 0, 0, total_size);
-    close(fd);
 
     std::vector<std::thread> wg;
     for(const auto& [k, v] : groups(n, max_threads))
     {
-      wg.emplace_back(std::thread([&ins, part_size, &out_file_name](const auto& vs) {
+      wg.emplace_back(std::thread([fd, part_size, &prefix, &out_file_name](const auto& vs) {
         const size_t max_buff = 64*1024;
         char * buff = new char[max_buff];
 
         for (const auto idx : vs)
         {
-          auto &f = ins[idx];
-          const auto offset = idx * part_size;
-
-          //seek
-          auto fd = open(out_file_name.c_str(), O_WRONLY | O_CLOEXEC);
-          lseek(fd, offset, 0);
+          const std::string infname = prefix + "_" + std::to_string(idx);
+          std::ifstream f(infname, std::ios::binary);
+          auto offset = idx * part_size;
 
           //copy
           while(true)
@@ -188,17 +176,17 @@ void joiner(const std::string& prefix, unsigned long n, bool parallel, bool prea
             if (r <= 0)
               break;
 
-            const auto w = write(fd, &buff[0], r);
+            const auto w = pwrite(fd, &buff[0], r, offset);
             if (w != r)
             {
               std::cerr << "error writing out file w=" << w << ", r=" << r << std::endl;
               exit(1);
             }
+            offset += r;
           }
 
-          // close (origin and dest)
+          // close input
           f.close();
-          close(fd);
         }
 
         delete []buff;
@@ -208,6 +196,9 @@ void joiner(const std::string& prefix, unsigned long n, bool parallel, bool prea
     std::cout << "spawned " << wg.size() << " threads\n";
     for (auto &th : wg)
       th.join();
+
+    close(fd);
+    fsync(fd);
   }
   else
   {
@@ -222,8 +213,10 @@ void joiner(const std::string& prefix, unsigned long n, bool parallel, bool prea
     const size_t max_buff = 64*1024;
     char * buff = new char[max_buff];
 
-    for(auto& f : ins)
+    for(unsigned long i = 0; i < n; i++)
     {
+      const std::string infname = prefix + "_" + std::to_string(i);
+      std::ifstream f(infname, std::ios::binary);
       while(true)
       {
         const auto r = f.readsome(&buff[0], max_buff);
