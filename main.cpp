@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
 {
   int i = 0;
   unsigned long n = 1, size = 1024;
-  size_t max_thread{64};
+  size_t max_threads{64};
   action_t action = action_t::NONE;
   std::string prefix{"./"}, out_file_name;
   bool parallel{false}, preallocate{false};
@@ -79,9 +79,9 @@ int main(int argc, char *argv[])
       continue;
     }
 
-    if (strcmp(argv[i], "--max-thread") == 0)
+    if (strcmp(argv[i], "--max-threads") == 0)
     {
-      max_thread = std::stoul(argv[i + 1]);
+      max_threads = std::stoul(argv[i + 1]);
       i += 2;
       continue;
     }
@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
     }
     case action_t::JOIN:
     {
-      joiner(prefix, n, parallel, preallocate, max_thread, out_file_name);
+      joiner(prefix, n, parallel, preallocate, max_threads, out_file_name);
       break;
     }
   }
@@ -140,7 +140,7 @@ void generate(const std::string& prefix, unsigned long n, unsigned long size)
 }
 
 
-void joiner(const std::string& prefix, unsigned long n, bool parallel, bool preallocate, size_t max_thread, const std::string& out_file_name)
+void joiner(const std::string& prefix, unsigned long n, bool parallel, bool preallocate, size_t max_threads, const std::string& out_file_name)
 {
   unsigned long total_size{};
 
@@ -166,7 +166,7 @@ void joiner(const std::string& prefix, unsigned long n, bool parallel, bool prea
     close(fd);
 
     std::vector<std::thread> wg;
-    for(const auto& [k, v] : groups(n, max_thread))
+    for(const auto& [k, v] : groups(n, max_threads))
     {
       wg.emplace_back(std::thread([&ins, part_size, &out_file_name](const auto& vs) {
         const size_t max_buff = 64*1024;

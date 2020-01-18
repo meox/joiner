@@ -21,11 +21,13 @@ SERIAL, file_size=/tank/foo_all_ser.dat, total_size=31457280000
 ## Parallel Join
 
 ```shell
-time ./joiner --join 300 --prefix /stank/test_dat/foo --out /tank/foo_all_par.dat --parallel --max-thread 32
+time ./joiner --join 300 --prefix /stank/test_dat/foo --out /tank/foo_all_par.dat --parallel --max-threads 32
 
 PARALLEL file=/tank/foo_all_par.dat, file_size=31457280000
 spawned 32 threads
 ```
+
+=== Results ===
 
 - With 4 threads: 0.19s user 13.25s system 8% cpu 2:33.96 total
 - With 8 threads: 0.20s user 13.13s system 9% cpu 2:26.23 total
