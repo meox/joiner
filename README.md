@@ -27,7 +27,7 @@ PARALLEL file=/tank/foo_all_par.dat, file_size=31457280000
 spawned 32 threads
 ```
 
-=== Results ===
+### Results
 
 - With 4 threads: 0.19s user 13.25s system 8% cpu 2:33.96 total
 - With 8 threads: 0.20s user 13.13s system 9% cpu 2:26.23 total
